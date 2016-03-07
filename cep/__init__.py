@@ -1,11 +1,12 @@
 #- coding: utf-8
 from BeautifulSoup import BeautifulSoup
+from HTMLParser import HTMLParser
 import cookielib
 import re
 import urllib
 import urllib2
 
-URL_CORREIOS = 'http://www.buscacep.correios.com.br/servicos/dnec/'
+URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 
 class Correios():
     def __init__(self, proxy=None):
@@ -47,15 +48,14 @@ class Correios():
         return values_dict
 
     def _parse_linha_tabela(self, tr):
-        values = [cell.firstText(text=True) for cell in tr.findAll('td')]
+        htmlparser = HTMLParser()
+        values = [htmlparser.unescape(cell.firstText(text=True)) for cell in tr.findAll('td')]
         keys = ['Logradouro', 'Bairro', 'Localidade', 'UF', 'CEP']
         return dict(zip(keys, values))
 
     def _parse_tabela(self, html):
         soup = BeautifulSoup(html)
-        linhas = soup.findAll('tr', attrs={
-            'onclick': re.compile(r"javascript:detalharCep\('\d+','\d+'\);")
-        })
+        linhas = soup.findAll('tr')
         return [self._parse_linha_tabela(linha) for linha in linhas]
 
     def _parse_faixa(self, html):
@@ -98,7 +98,7 @@ class Correios():
         """Consulta site e retorna lista de resultados"""
 
         if uf is None:
-            url = 'consultaEnderecoAction.do'
+            url = 'resultadoBuscaCepEndereco.cfm'
             data = {
                 'relaxation': endereco.encode('ISO-8859-1'),
                 'TipoCep': 'ALL',
