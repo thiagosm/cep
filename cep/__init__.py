@@ -61,7 +61,7 @@ class Correios():
     def _parse_tabela(self, html):
         soup = BeautifulSoup(html)
         linhas = soup.findAll('tr')
-        return [self._parse_linha_tabela(linha) for linha in linhas]
+        return list(filter(lambda x:x,[self._parse_linha_tabela(linha) for linha in linhas]))
 
     def _parse_faixa(self, html):
         if u"não está cadastrada" in html.decode('cp1252'):
