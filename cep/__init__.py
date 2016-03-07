@@ -50,8 +50,13 @@ class Correios():
     def _parse_linha_tabela(self, tr):
         htmlparser = HTMLParser()
         values = [htmlparser.unescape(cell.firstText(text=True)) for cell in tr.findAll('td')]
-        keys = ['Logradouro', 'Bairro', 'Localidade', 'UF', 'CEP']
-        return dict(zip(keys, values))
+        keys = ['Logradouro', 'Bairro', 'Localidade', 'CEP']
+        correios_data = dict(zip(keys, values))
+        if 'Localidade' in correios_data:
+            localidade,uf = correios_data['Localidade'].split('/')
+            correios_data['UF'] = uf
+            correios_data['Localidade'] = localidade
+        return correios_data
 
     def _parse_tabela(self, html):
         soup = BeautifulSoup(html)
