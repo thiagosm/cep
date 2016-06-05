@@ -39,9 +39,9 @@ class Correios():
         values = [cell.firstText(text=True) for cell in value_cells]
         localidade, uf = values[2].split('/')
         values_dict = {
-            'Logradouro': values[0],
-            'Bairro': values[1],
-            'Localidade': localidade,
+            'Logradouro': htmlparser.unescape(values[0]),
+            'Bairro': htmlparser.unescape(values[1]),
+            'Localidade': htmlparser.unescape(localidade),
             'UF': uf,
             'CEP': values[3]
         }
