@@ -36,7 +36,7 @@ class Correios():
         soup = BeautifulSoup(html.decode('ISO-8859-1'))
 
         value_cells = soup.findAll('td', attrs={'class': 'value'})
-        values = [cell.firstText(text=True) for cell in value_cells]
+        values = [htmlparser.unescape(cell.firstText(text=True).lower()).upper() for cell in value_cells]
         localidade, uf = values[2].split('/')
         values_dict = {
             'Logradouro': values[0].strip(),
@@ -52,6 +52,9 @@ class Correios():
         values = [htmlparser.unescape(cell.firstText(text=True).lower().strip()).upper() for cell in tr.findAll('td')]
         keys = ['Logradouro', 'Bairro', 'Localidade', 'CEP']
         correios_data = dict(zip(keys, values))
+        for stripf in ['Logradouro', 'Bairro', 'Localidade', 'CEP']:
+            if stripf in correios_data:
+                correios_data[stripf] = correios_data[stripf].strip()
         if 'Localidade' in correios_data:
             localidade,uf = correios_data['Localidade'].split('/')
             correios_data['UF'] = uf
