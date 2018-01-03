@@ -17,7 +17,7 @@ else:
 
 setup(
 	name="cep",
-	version="0.1.3.5",
+	version="0.1.3.6",
 	description="Pesquisa de CEPs via site dos Correios",
     author="Juarez Bochi",
 	author_email="jbochi@gmail.com",
@@ -25,7 +25,7 @@ setup(
 	platforms=["any"],
 	license="MIT",
         packages=find_packages(exclude=['ez_setup', 'tests', 'tests.*']),
-	install_requires=["BeautifulSoup"],
+	install_requires=["BeautifulSoup4"],
 	tests_require=["nose"],
 	test_suite="nose.collector",
 	classifiers=[

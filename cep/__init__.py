@@ -1,5 +1,5 @@
 #- coding: utf-8
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from HTMLParser import HTMLParser
 import cookielib
 import re
