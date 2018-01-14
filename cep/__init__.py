@@ -1,6 +1,9 @@
 #- coding: utf-8
 from bs4 import BeautifulSoup
-from html.parser import HTMLParser
+try:
+    from HTMLParser import HTMLParser
+except:
+    from html.parser import HTMLParser
 import cookielib
 import re
 import urllib
