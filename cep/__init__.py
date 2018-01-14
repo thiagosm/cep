@@ -36,7 +36,7 @@ class Correios():
         return handle
 
     def _parse_detalhe(self, html):
-        soup = BeautifulSoup(html.decode('ISO-8859-1'))
+        soup = BeautifulSoup(html.decode('ISO-8859-1'),"lxml")
 
         value_cells = soup.findAll('td', attrs={'class': 'value'})
         values = [htmlparser.unescape(cell.text.lower()).upper() for cell in value_cells]
@@ -65,7 +65,7 @@ class Correios():
         return correios_data
 
     def _parse_tabela(self, html):
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html,"lxml")
         linhas = soup.findAll('tr')
         return list(filter(lambda x:x,[self._parse_linha_tabela(linha) for linha in linhas]))
 
