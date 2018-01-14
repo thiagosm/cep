@@ -33,10 +33,10 @@ class Correios():
         return handle
 
     def _parse_detalhe(self, html):
-        soup = BeautifulSoup(html.decode('ISO-8859-1'),"lxml")
+        soup = BeautifulSoup(html.decode('ISO-8859-1'))
 
         value_cells = soup.findAll('td', attrs={'class': 'value'})
-        values = [htmlparser.unescape(cell.firstText(text=True).lower()).upper() for cell in value_cells]
+        values = [htmlparser.unescape(cell.text.lower()).upper() for cell in value_cells]
         localidade, uf = values[2].split('/')
         values_dict = {
             'Logradouro': values[0].strip(),
@@ -62,7 +62,7 @@ class Correios():
         return correios_data
 
     def _parse_tabela(self, html):
-        soup = BeautifulSoup(html,"lxml")
+        soup = BeautifulSoup(html)
         linhas = soup.findAll('tr')
         return list(filter(lambda x:x,[self._parse_linha_tabela(linha) for linha in linhas]))
 
