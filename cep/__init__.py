@@ -52,7 +52,7 @@ class Correios():
 
     def _parse_linha_tabela(self, tr):
         htmlparser = HTMLParser()
-        values = [htmlparser.unescape(cell.firstText(text=True).lower().strip()).upper() for cell in tr.findAll('td')]
+        values = [htmlparser.unescape(cell.text.lower().strip()).upper() for cell in tr.findAll('td')]
         keys = ['Logradouro', 'Bairro', 'Localidade', 'CEP']
         correios_data = dict(zip(keys, values))
         for stripf in ['Logradouro', 'Bairro', 'Localidade', 'CEP']:
