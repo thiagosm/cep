@@ -12,6 +12,12 @@ except ImportError:
 
 import re
 import urllib
+
+try:
+    from urllib.request import HTTPCookieProcessor, ProxyHandler
+except ImportError:
+    from urllib2 import HTTPCookieProcessor, ProxyHandler
+
 import urllib2
 
 URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
@@ -19,13 +25,25 @@ URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 class Correios():
     def __init__(self, proxy=None):
         cj = LWPCookieJar()
-        cookie_handler = urllib2.HTTPCookieProcessor(cj)
+        cookie_handler = HTTPCookieProcessor(cj)
         if proxy:
-            proxy_handler = urllib2.ProxyHandler({'http': proxy})
-            opener = urllib2.build_opener(proxy_handler, cookie_handler)
+            proxy_handler = ProxyHandler({'http': proxy})
+            try:
+                opener = urllib.request.build_opener(proxy_handler, cookie_handler)
+            except AttributeError:
+                opener = urllib2.build_opener(proxy_handler, cookie_handler)
+
         else:
-            opener = urllib2.build_opener(cookie_handler)
-        urllib2.install_opener(opener)
+            try:
+                opener = urllib.request.build_opener(cookie_handler)
+            except AttributeError:
+                opener = urllib2.build_opener(cookie_handler)
+
+        try:
+            urllib.request.install_opener(opener)
+        except AttributeError:
+            urllib2.install_opener(opener)
+
 
     def _url_open(self, url, data=None, headers=None):
         if headers == None:
