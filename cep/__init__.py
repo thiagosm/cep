@@ -18,6 +18,10 @@ try:
 except ImportError:
     import urllib2 as urlrequest
 
+try:
+    urlencode = urllib.urlencode
+except:
+    urlencode = urllib.parse.urlencode
 
 URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 
@@ -40,7 +44,7 @@ class Correios():
             headers = {}
 
         headers['User-agent'] = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-        encoded_data = urllib.urlencode(data) if data else None
+        encoded_data = urlencode(data) if data else None
         url = URL_CORREIOS + url
 
         req = urlrequest.Request(url, encoded_data, headers)
