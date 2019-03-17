@@ -15,7 +15,7 @@ import urllib
 
 try:
     from urllib import request as urlrequest
-except ImportError:
+except:
     import urllib2 as urlrequest
 
 try:
@@ -27,7 +27,7 @@ URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 
 class Correios():
     def __init__(self, proxy=None):
-        cj = LWPCookieJar()
+        cj = urlrequest.LWPCookieJar()
         cookie_handler = urlrequest.HTTPCookieProcessor(cj)
         if proxy:
             proxy_handler = urlrequest.ProxyHandler({'http': proxy})
