@@ -47,7 +47,7 @@ class Correios():
         encoded_data = urlencode(data) if data else None
         url = URL_CORREIOS + url
 
-        req = urlrequest.Request(url, encoded_data.encode('iso-8859-1'), headers)
+        req = urlrequest.Request(url, encoded_data, headers)
         handle = urlrequest.urlopen(req)
 
         return handle
