@@ -4,7 +4,12 @@ try:
     from HTMLParser import HTMLParser
 except:
     from html.parser import HTMLParser
-import cookielib
+
+try:
+    from http.cookiejar import LWPCookieJar
+except ImportError:
+    from cookielib import LWPCookieJar
+
 import re
 import urllib
 import urllib2
@@ -13,7 +18,7 @@ URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 
 class Correios():
     def __init__(self, proxy=None):
-        cj = cookielib.LWPCookieJar()
+        cj = LWPCookieJar()
         cookie_handler = urllib2.HTTPCookieProcessor(cj)
         if proxy:
             proxy_handler = urllib2.ProxyHandler({'http': proxy})
