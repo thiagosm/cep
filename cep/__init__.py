@@ -18,7 +18,10 @@ try:
 except ImportError:
     from urllib2 import HTTPCookieProcessor, ProxyHandler
 
-import urllib2
+try:
+    import urllib2
+except ImportError:
+    pass 
 
 URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 
