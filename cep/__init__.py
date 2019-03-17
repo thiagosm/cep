@@ -44,7 +44,7 @@ class Correios():
             headers = {}
 
         headers['User-agent'] = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-        encoded_data = urlencode(data).encode("utf-8") if data else None
+        encoded_data = urlencode(data).encode("iso-8859-1") if data else None
         url = URL_CORREIOS + url
 
         req = urlrequest.Request(url, encoded_data, headers)
