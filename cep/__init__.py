@@ -14,38 +14,25 @@ import re
 import urllib
 
 try:
-    from urllib.request import HTTPCookieProcessor, ProxyHandler
+    from urllib import request as urlrequest
 except ImportError:
-    from urllib2 import HTTPCookieProcessor, ProxyHandler
+    import urllib2 as urlrequest
 
-try:
-    import urllib2
-except ImportError:
-    pass 
 
 URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 
 class Correios():
     def __init__(self, proxy=None):
         cj = LWPCookieJar()
-        cookie_handler = HTTPCookieProcessor(cj)
+        cookie_handler = urlrequest.HTTPCookieProcessor(cj)
         if proxy:
-            proxy_handler = ProxyHandler({'http': proxy})
-            try:
-                opener = urllib.request.build_opener(proxy_handler, cookie_handler)
-            except AttributeError:
-                opener = urllib2.build_opener(proxy_handler, cookie_handler)
+            proxy_handler = urlrequest.ProxyHandler({'http': proxy})
+            opener = urlrequest.build_opener(proxy_handler, cookie_handler)
 
         else:
-            try:
-                opener = urllib.request.build_opener(cookie_handler)
-            except AttributeError:
-                opener = urllib2.build_opener(cookie_handler)
+            opener = urlrequest.build_opener(cookie_handler)
+        urlrequest.install_opener(opener)
 
-        try:
-            urllib.request.install_opener(opener)
-        except AttributeError:
-            urllib2.install_opener(opener)
 
 
     def _url_open(self, url, data=None, headers=None):
@@ -56,8 +43,8 @@ class Correios():
         encoded_data = urllib.urlencode(data) if data else None
         url = URL_CORREIOS + url
 
-        req = urllib2.Request(url, encoded_data, headers)
-        handle = urllib2.urlopen(req)
+        req = urlrequest.Request(url, encoded_data, headers)
+        handle = urlrequest.urlopen(req)
 
         return handle
 
