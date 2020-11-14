@@ -1,34 +1,13 @@
 #- coding: utf-8
-from bs4 import BeautifulSoup
-try:
-    from HTMLParser import HTMLParser
-except:
-    from html.parser import HTMLParser
-
-try:
-    from http.cookiejar import LWPCookieJar
-except ImportError:
-    from cookielib import LWPCookieJar
-
-import re
-import urllib
 import requests
 
-try:
-    from urllib import request as urlrequest
-except:
-    import urllib2 as urlrequest
-
-try:
-    urlencode = urllib.urlencode
-except:
-    urlencode = urllib.parse.urlencode
 
 #URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 URL_CORREIOS = 'https://buscacep.correios.com.br/app/endereco/carrega-cep-endereco.php'
 
 class Correios():
     def __init__(self, proxy=None):
+        pass
 #        cj = LWPCookieJar()
 #        cookie_handler = urlrequest.HTTPCookieProcessor(cj)
 #        if proxy:
@@ -67,11 +46,11 @@ class Correios():
 #            'UF': uf,
 #            'CEP': values[3]
 #        }
-    def _parse_detalhe(self, json):
+    def _parse_detalhe(self, d):
         return {
                     "UF": d['uf'],
                     "Logradouro": d['logradouroDNEC'],
-                    "Bairro": d['bairro']
+                    "Bairro": d['bairro'],
                     "Localidade": d['localidade'],
                     "UF": d['uf'],
                     "CEP": d['cep'],
@@ -97,16 +76,16 @@ class Correios():
 #        linhas = soup.findAll('tr')
 #        return list(filter(lambda x:x,[self._parse_linha_tabela(linha) for linha in linhas]))
 
-    def _parse_faixa(self, html):
-        if u"não está cadastrada" in html.decode('cp1252'):
-            return None
-        ceps = re.findall('\d{5}-\d{3}', html)
-        if len(ceps) == 4 or len(ceps) == 6: #uf (+ uf) + cidade com range
-            return tuple(ceps[-2:])
-        elif len(ceps) == 3 or len(ceps) == 5: #uf (+ uf) + cidade com cep único
-            return ceps[-1]
-        else:
-            raise ValueError("HTML recebido não é válido")
+#    def _parse_faixa(self, html):
+#        if u"não está cadastrada" in html.decode('cp1252'):
+#            return None
+#        ceps = re.findall('\d{5}-\d{3}', html)
+#        if len(ceps) == 4 or len(ceps) == 6: #uf (+ uf) + cidade com range
+#            return tuple(ceps[-2:])
+#        elif len(ceps) == 3 or len(ceps) == 5: #uf (+ uf) + cidade com cep único
+#            return ceps[-1]
+#        else:
+#            raise ValueError("HTML recebido não é válido")
 
 #    def detalhe(self, posicao=0):
 #        """Retorna o detalhe de um CEP da última lista de resultados"""
@@ -131,7 +110,7 @@ class Correios():
 #        }
 #        html = self._url_open(url, data).read()
        
-        return filter(lamda x: x['UF'] == uf.upper(), self.consulta(endereco, uf=uf))
+        return filter(lambda x: x['UF'] == uf.upper(), self.consulta(endereco, uf=uf))
 
     def consulta(self, endereco, primeiro=False,
                  uf=None, localidade=None, tipo='LOG', numero=None):
@@ -140,13 +119,13 @@ class Correios():
         dados = []
         try:
             dados = result.json().get('dados')
-            dados = [self.__parse_detalhe(d) for d in dados]
+            dados = [self._parse_detalhe(d) for d in dados]
             if uf:
-                dados = filter(lamda x: x['UF'].upper() == uf.upper(), dados)
+                dados = filter(lambda x: x['UF'].upper() == uf.upper(), dados)
             if localidade:
-                dados = filter(lamda x: x['Localidade'].upper() == localidade.upper(), dados)
+                dados = filter(lambda x: x['Localidade'].upper() == localidade.upper(), dados)
             if numero:
-                dados = filter(lamda x: str(x['Numero']) == numero, dados)                
+                dados = filter(lambda x: str(x['Numero']) == numero, dados)                
         except Exception as e:
             print(e)
         
