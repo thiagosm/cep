@@ -127,7 +127,7 @@ class Correios():
             if numero:
                 dados = filter(lambda x: x['Numero'] == str(numero), dados)
             if bairro:
-                dados = filter(lambda x: x['bairro'].upper() == bairro.upper(), dados)                
+                dados = filter(lambda x: x['Bairro'].upper() == bairro.upper(), dados)                
         except Exception as e:
             print(e)
         
