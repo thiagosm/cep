@@ -112,7 +112,7 @@ class Correios():
        
         return filter(lambda x: x['UF'] == uf.upper(), self.consulta(endereco, uf=uf))
 
-    def consulta(self, endereco, primeiro=False,
+    def consulta(self, endereco, primeiro=False, bairro=None,
                  uf=None, localidade=None, tipo='LOG', numero=None):
         """Consulta site e retorna lista de resultados"""
         result = requests.get(URL_CORREIOS, params={'endereco': endereco, 'tipoCEP': tipo})
@@ -125,7 +125,9 @@ class Correios():
             if localidade:
                 dados = filter(lambda x: x['Localidade'].upper() == localidade.upper(), dados)
             if numero:
-                dados = filter(lambda x: str(x['Numero']) == numero, dados)                
+                dados = filter(lambda x: x['Numero'] == str(numero), dados)
+            if bairro:
+                dados = filter(lambda x: x['bairro'].upper() == bairro.upper(), dados)                
         except Exception as e:
             print(e)
         
