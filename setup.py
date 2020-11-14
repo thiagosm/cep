@@ -25,7 +25,7 @@ setup(
 	platforms=["any"],
 	license="MIT",
         packages=find_packages(exclude=['ez_setup', 'tests', 'tests.*']),
-	install_requires=["BeautifulSoup4"],
+	install_requires=["requests"],
 	tests_require=["nose"],
 	test_suite="nose.collector",
 	classifiers=[
