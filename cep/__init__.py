@@ -117,9 +117,9 @@ class Correios():
                  uf=None, localidade=None, tipo='LOG', numero=None):
         """Consulta site e retorna lista de resultados"""
         try:
-            result = requests.get(URL_CORREIOS, params={'endereco': endereco, 'tipoCEP': tipo})
-        except:
             result = requests.get(URL_CORREIOS_ALT, params={'endereco': endereco, 'tipoCEP': tipo})
+        except:
+            result = requests.get(URL_CORREIOS, params={'endereco': endereco, 'tipoCEP': tipo})
         dados = []
         try:
             dados = result.json().get('dados')
