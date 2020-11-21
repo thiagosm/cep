@@ -4,6 +4,7 @@ import requests
 
 #URL_CORREIOS = 'http://www.buscacep.correios.com.br/sistemas/buscacep/'
 URL_CORREIOS = 'https://buscacep.correios.com.br/app/endereco/carrega-cep-endereco.php'
+URL_CORREIOS_ALT = 'https://buscacepinter.correios.com.br/app/endereco/carrega-cep-endereco.php'
 
 class Correios():
     def __init__(self, proxy=None):
@@ -115,7 +116,10 @@ class Correios():
     def consulta(self, endereco, primeiro=False, bairro=None,
                  uf=None, localidade=None, tipo='LOG', numero=None):
         """Consulta site e retorna lista de resultados"""
-        result = requests.get(URL_CORREIOS, params={'endereco': endereco, 'tipoCEP': tipo})
+        try:
+            result = requests.get(URL_CORREIOS, params={'endereco': endereco, 'tipoCEP': tipo})
+        except
+            result = requests.get(URL_CORREIOS_ALT, params={'endereco': endereco, 'tipoCEP': tipo})
         dados = []
         try:
             dados = result.json().get('dados')
