@@ -118,7 +118,7 @@ class Correios():
         """Consulta site e retorna lista de resultados"""
         try:
             result = requests.get(URL_CORREIOS, params={'endereco': endereco, 'tipoCEP': tipo})
-        except
+        except:
             result = requests.get(URL_CORREIOS_ALT, params={'endereco': endereco, 'tipoCEP': tipo})
         dados = []
         try:
