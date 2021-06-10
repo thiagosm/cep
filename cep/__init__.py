@@ -24,7 +24,7 @@ class Correios():
     def consulta(self, endereco, primeiro=False, bairro=None,
                  uf=None, localidade=None, tipo='LOG', numero=None):
         """Consulta site e retorna lista de resultados"""
-        result = requests.post(URL_CORREIOS, params={'endereco': endereco, 'tipoCEP': tipo})
+        result = requests.post(URL_CORREIOS, data={'endereco': endereco, 'tipoCEP': tipo})
         dados = []
         try:
             dados = result.json().get('dados')
