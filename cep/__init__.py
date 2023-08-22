@@ -1,20 +1,32 @@
 #- coding: utf-8
 import requests
 
-URL_CORREIOS = 'https://buscacepinter.correios.com.br/app/endereco/carrega-cep-endereco.php'
+
 
 class Correios():
+    URL_CORREIOS = 'https://buscacepinter.correios.com.br/app/endereco/carrega-cep-endereco.php'
+
+    HEADERS = {
+        'authority': 'buscacepinter.correios.com.br',
+        'accept': '*/*',
+        'cache-control': 'no-store, no-cache, must-revalidate',
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'origin': 'https://buscacepinter.correios.com.br',
+        'referer': 'https://buscacepinter.correios.com.br/app/endereco/index.php',
+    }
+
+    TIMEOUT = 30
 
     def _parse_detalhe(self, d):
         return {
-                    "UF": d['uf'],
-                    "Logradouro": d['logradouroDNEC'],
-                    "Bairro": d['bairro'],
-                    "Localidade": d['localidade'],
-                    "UF": d['uf'],
-                    "CEP": d['cep'],
-                    "Numero": d['nomeUnidade']
-                }
+            "UF": d['uf'],
+            "Logradouro": d['logradouroDNEC'],
+            "Bairro": d['bairro'],
+            "Localidade": d['localidade'],
+            "UF": d['uf'],
+            "CEP": d['cep'],
+            "Numero": d['nomeUnidade']
+        }
 
 
     def consulta_faixa(self, localidade, uf):
@@ -24,7 +36,20 @@ class Correios():
     def consulta(self, endereco, primeiro=False, bairro=None,
                  uf=None, localidade=None, tipo='LOG', numero=None):
         """Consulta site e retorna lista de resultados"""
-        result = requests.post(URL_CORREIOS, data={'endereco': endereco, 'tipoCEP': tipo})
+
+        data = {
+            'endereco': endereco, 'tipoCEP': tipo
+        }
+
+        result = requests.post(self.URL_CORREIOS, 
+                               headers=self.HEADERS,
+                               data=data,
+                               verify=False,
+                               allow_redirects=True,
+                               timeout=self.TIMEOUT)
+
+        print (result.status_code, result.text)
+
         dados = []
         try:
             dados = result.json().get('dados')
