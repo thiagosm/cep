@@ -17,7 +17,7 @@ else:
 
 setup(
 	name="cep",
-	version="0.3.0.0",
+	version="0.3.1.0",
 	description="Pesquisa de CEPs via site dos Correios",
     author="Juarez Bochi",
 	author_email="jbochi@gmail.com",

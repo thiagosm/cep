@@ -4,28 +4,26 @@ import requests
 
 
 class Correios():
-    URL_CORREIOS = 'https://buscacepinter.correios.com.br/app/endereco/carrega-cep-endereco.php'
+    URL_VIACEP_CEP = 'https://viacep.com.br/ws/{cep}/json/'
+    URL_VIACEP_END = 'https://viacep.com.br/ws/{uf}/{cidade}/{end}/json/'
 
     HEADERS = {
-        'authority': 'buscacepinter.correios.com.br',
-        'accept': '*/*',
+        'accept': 'application/json',
         'cache-control': 'no-store, no-cache, must-revalidate',
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'origin': 'https://buscacepinter.correios.com.br',
-        'referer': 'https://buscacepinter.correios.com.br/app/endereco/index.php',
     }
 
     TIMEOUT = 30
 
     def _parse_detalhe(self, d):
+        if isinstance(d, list):
+            d = d[0]
         return {
             "UF": d['uf'],
-            "Logradouro": d['logradouroDNEC'],
+            "Logradouro": d['logradouro'],
             "Bairro": d['bairro'],
             "Localidade": d['localidade'],
-            "UF": d['uf'],
             "CEP": d['cep'],
-            "Numero": d['nomeUnidade']
+            "Numero": "",
         }
 
 
@@ -37,13 +35,25 @@ class Correios():
                  uf=None, localidade=None, tipo='LOG', numero=None):
         """Consulta site e retorna lista de resultados"""
 
-        data = {
-            'endereco': endereco, 'tipoCEP': tipo
-        }
+        url = None
+        if str(endereco).isdigit():
+            url = self.URL_VIACEP_CEP.replace("{cep}",endereco)
+        elif "," in str(endereco):
+            end = endereco.split(",")
+            if len(end) == 3: #Logradouro, Cidade e UF
+                url = self.URL_VIACEP_END
+                url = url.replace("{end}",end[0].strip())
+                url = url.replace("{cidade}",end[1].strip())
+                url = url.replace("{uf}",end[2].strip())
+            elif len(end) == 4: #Logradouro, Bairro, Cidade e UF
+                url = self.URL_VIACEP_END
+                url = url.replace("{end}",end[0].strip())
+                url = url.replace("{cidade}",end[2].strip())
+                url = url.replace("{uf}",end[3].strip())
 
-        result = requests.post(self.URL_CORREIOS, 
+
+        result = requests.get(url,
                                headers=self.HEADERS,
-                               data=data,
                                verify=False,
                                allow_redirects=True,
                                timeout=self.TIMEOUT)
@@ -52,19 +62,16 @@ class Correios():
 
         dados = []
         try:
-            dados = result.json().get('dados')
-            dados = [self._parse_detalhe(d) for d in dados]
+            dados = self._parse_detalhe(result.json())
             if uf:
-                dados = filter(lambda x: x['UF'].upper() == uf.upper(), dados)
+                dados = filter(lambda x: x['uf'].upper() == uf.upper(), dados)
             if localidade:
-                dados = filter(lambda x: x['Localidade'].upper() == localidade.upper(), dados)
-            if numero:
-                dados = filter(lambda x: x['Numero'] == str(numero), dados)
+                dados = filter(lambda x: x['logradouro'].upper() == localidade.upper(), dados)
             if bairro:
-                dados = filter(lambda x: x['Bairro'].upper() == bairro.upper(), dados)                
+                dados = filter(lambda x: x['bairro'].upper() == bairro.upper(), dados)
         except Exception as e:
             print(e)
-        
+
         if primeiro and dados:
             return dados[0]
         else:
