@@ -15,8 +15,6 @@ class Correios():
     TIMEOUT = 30
 
     def _parse_detalhe(self, d):
-        if isinstance(d, list):
-            d = d[0]
         return {
             "UF": d['uf'],
             "Logradouro": d['logradouro'],
@@ -62,7 +60,10 @@ class Correios():
 
         dados = []
         try:
-            dados = self._parse_detalhe(result.json())
+            dados = result.json()
+            if isinstance(dados, dict):
+                dados = [dados]
+            dados = [self._parse_detalhe(d) for d in dados]
             if uf:
                 dados = filter(lambda x: x['uf'].upper() == uf.upper(), dados)
             if localidade:
