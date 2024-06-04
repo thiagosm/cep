@@ -1,79 +1,82 @@
 #- coding: utf-8
 import requests
-
-
+import re
+import collections
+import traceback
 
 class Correios():
-    URL_VIACEP_CEP = 'https://viacep.com.br/ws/{cep}/json/'
-    URL_VIACEP_END = 'https://viacep.com.br/ws/{uf}/{cidade}/{end}/json/'
+    URL_VIACEP_CEP = 'https://viacep.com.br/ws/%s/json/'
+    URL_VIACEP_END = 'https://viacep.com.br/ws/%s/%s/%s/json/'
 
-    HEADERS = {
-        'accept': 'application/json',
-        'cache-control': 'no-store, no-cache, must-revalidate',
-    }
+    TIMEOUT = 60
 
-    TIMEOUT = 30
+    def _parse_data(self, d):
+        try:
+            return {
+                "UF": d.get("uf", None) or "",
+                "Logradouro": d.get("logradouro", None) or "",
+                "Bairro": d.get("bairro", None) or "",
+                "Localidade": d.get("localidade", None) or "",
+                "CEP": d.get("cep", None) or "",
+                "Complemento": d.get("complemento", None) or "",
+                "Numero": d.get("numero", None) or ""
+            }
+        except:
+            traceback.print_exc()
 
-    def _parse_detalhe(self, d):
-        return {
-            "UF": d['uf'],
-            "Logradouro": d['logradouro'],
-            "Bairro": d['bairro'],
-            "Localidade": d['localidade'],
-            "CEP": d['cep'],
-            "Numero": "",
-        }
-
-
-    def consulta_faixa(self, localidade, uf):
-        """Consulta site e retorna faixa para localidade"""       
-        return filter(lambda x: x['UF'] == uf.upper(), self.consulta(endereco, uf=uf))
-
-    def consulta(self, endereco, primeiro=False, bairro=None,
-                 uf=None, localidade=None, tipo='LOG', numero=None):
+    def consulta(self, **kwargs):
         """Consulta site e retorna lista de resultados"""
 
-        url = None
-        if str(endereco).isdigit():
-            url = self.URL_VIACEP_CEP.replace("{cep}",endereco)
-        elif "," in str(endereco):
-            end = endereco.split(",")
-            if len(end) == 3: #Logradouro, Cidade e UF
-                url = self.URL_VIACEP_END
-                url = url.replace("{end}",end[0].strip())
-                url = url.replace("{cidade}",end[1].strip())
-                url = url.replace("{uf}",end[2].strip())
-            elif len(end) == 4: #Logradouro, Bairro, Cidade e UF
-                url = self.URL_VIACEP_END
-                url = url.replace("{end}",end[0].strip())
-                url = url.replace("{cidade}",end[2].strip())
-                url = url.replace("{uf}",end[3].strip())
+        cep = kwargs.get("cep", None) or kwargs.get("consulta", None)
+        cidade = kwargs.get("cidade", None)
+        uf = kwargs.get("uf", None)
+        logradouro = kwargs.get("logradouro", None)
 
+        if cep:
+            cep = re.sub('[^0-9]', '', str(cep))
+        
+        result = []
 
-        result = requests.get(url,
-                               headers=self.HEADERS,
-                               verify=False,
-                               allow_redirects=True,
-                               timeout=self.TIMEOUT)
-
-        print (result.status_code, result.text)
-
-        dados = []
         try:
-            dados = result.json()
-            if isinstance(dados, dict):
-                dados = [dados]
-            dados = [self._parse_detalhe(d) for d in dados]
-            if uf:
-                dados = filter(lambda x: x['uf'].upper() == uf.upper(), dados)
-            if localidade:
-                dados = filter(lambda x: x['logradouro'].upper() == localidade.upper(), dados)
-            if bairro:
-                dados = filter(lambda x: x['bairro'].upper() == bairro.upper(), dados)
-        except Exception as e:
-            print(e)
+            url = None
+            if cep and cep.isdigit():
+                url = self.URL_VIACEP_CEP % cep
+            elif not cep and (cidade and uf and logradouro):
+                url = self.URL_VIACEP_END % (uf, cidade, logradouro)
 
-        if primeiro and dados:
-            return dados[0]
-        else:
-            return dados
+            if url:
+                response = requests.get(url,
+                                        headers={
+                                            'accept': 'application/json',
+                                            'cache-control': 'no-store, no-cache, must-revalidate',
+                                        },
+                                        verify=False,
+                                        allow_redirects=True,
+                                        timeout=self.TIMEOUT)
+                
+                print ('------ viacep -------')
+                print (response.text)
+                
+                if response.status_code == 200:
+                    rjson = None
+                    try:
+                        rjson = response.json()
+                    except:
+                        pass
+
+                    if rjson:
+                        if isinstance(rjson, collections.Mapping):  
+                            data = self._parse_data(rjson)
+                            if data:
+                                result.append(data)
+                        
+                        elif isinstance(rjson, list):
+                            for d in rjson:
+                                data = self._parse_data(d)
+                                if data:
+                                    if d not in result:
+                                        result.append(data)
+        except:
+            traceback.print_exc()
+
+        return result
