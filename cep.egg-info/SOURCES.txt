@@ -1,8 +1,0 @@
-README.rst
-setup.py
-cep/__init__.py
-cep.egg-info/PKG-INFO
-cep.egg-info/SOURCES.txt
-cep.egg-info/dependency_links.txt
-cep.egg-info/requires.txt
-cep.egg-info/top_level.txt
